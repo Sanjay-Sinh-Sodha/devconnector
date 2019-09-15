@@ -1,15 +1,15 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { loginUser } from "../../actions/authActions";
-import TextFieldsGroup from "../common/textFieldsGroup";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { loginUser } from '../../actions/authActions';
+import TextFieldGroup from '../common/TextFieldGroup';
 
 class Login extends Component {
   constructor() {
     super();
     this.state = {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
       errors: {}
     };
 
@@ -17,38 +17,40 @@ class Login extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  onChange(e) {
-    this.setState({
-      [e.target.name]: e.target.value
-    });
-  }
-
   componentDidMount() {
     if (this.props.auth.isAuthenticated) {
-      this.props.history.push("/dashboard");
+      this.props.history.push('/dashboard');
     }
   }
 
   componentWillReceiveProps(nextProps) {
+    if (nextProps.auth.isAuthenticated) {
+      this.props.history.push('/dashboard');
+    }
+
     if (nextProps.errors) {
       this.setState({ errors: nextProps.errors });
-    }
-    if (nextProps.auth.isAuthenticated) {
-      this.props.history.push("/dashboard");
     }
   }
 
   onSubmit(e) {
     e.preventDefault();
-    const newUser = {
+
+    const userData = {
       email: this.state.email,
       password: this.state.password
     };
-    this.props.loginUser(newUser);
+
+    this.props.loginUser(userData);
+  }
+
+  onChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
   }
 
   render() {
     const { errors } = this.state;
+
     return (
       <div className="login">
         <div className="container">
@@ -58,17 +60,20 @@ class Login extends Component {
               <p className="lead text-center">
                 Sign in to your DevConnector account
               </p>
-              <form noValidate onSubmit={this.onSubmit}>
-                <TextFieldsGroup
+              <form onSubmit={this.onSubmit}>
+                <TextFieldGroup
                   placeholder="Email Address"
                   name="email"
+                  type="email"
                   value={this.state.email}
                   onChange={this.onChange}
                   error={errors.email}
                 />
-                <TextFieldsGroup
+
+                <TextFieldGroup
                   placeholder="Password"
                   name="password"
+                  type="password"
                   value={this.state.password}
                   onChange={this.onChange}
                   error={errors.password}
@@ -89,12 +94,9 @@ Login.propTypes = {
   errors: PropTypes.object.isRequired
 };
 
-const mapStateProps = state => ({
+const mapStateToProps = state => ({
   auth: state.auth,
   errors: state.errors
 });
 
-export default connect(
-  mapStateProps,
-  { loginUser }
-)(Login);
+export default connect(mapStateToProps, { loginUser })(Login);
